@@ -1,12 +1,11 @@
-import { Router, Request, Response } from 'express';
-import userRoutes from './userRoutes';
+import { Router } from "express";
+import v1 from "./v1";
+import notFound from "./notFound";
 
 const router = Router();
 
-router.use('/users', userRoutes);
+router.use("/v1", v1);
 
-router.get('/ping', (req: Request, res: Response) => {
-    res.send('pong2');
-});  
+router.use(notFound);
 
 export default router;

@@ -1,6 +1,5 @@
 import { Knex } from "knex";
 
-console.log('teste')
 export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable('users', (table) => {
       table.increments('id').primary();

@@ -1,69 +1,19 @@
 import { Request, Response } from "express";
-import UserModel from "../models/userModel";
+import { injectable } from "tsyringe";
+import CreateUserService from "../services/CreateUserService";
+import { HTTP } from "../utils/constants";
 
-class UserController {
-  static async getAllUsers(req: Request, res: Response): Promise<void> {
-    try {
-      const users = await UserModel.getAllUsers();
-      res.status(200).send({
-        status: "success",
-        data: {
-          users,
-        },
-      });
-    } catch (error) {
-      res.send({
-        status: "error",
-        data: {
-          error,
-        },
-      });
-    }
-  }
+@injectable()
+export default class UserController {
+  constructor(private createUserService: CreateUserService){}
 
-  static async getUserById(req: Request, res: Response): Promise<void> {
-    try {
-      const user = await UserModel.getUserById(req.params.id);
-      res.status(200).send({
-        status: "success",
-        data: {
-          user,
-        },
-      });
-    } catch (error) {
-      res.send({
-        status: "error",
-        data: {
-          error,
-        },
-      });
-    }
-  }
+  public async create(req: Request, res: Response): Promise<void>{
+    const { name, email, password } = req.body;
 
-  static async createUser(req: Request, res: Response): Promise<void> {
-    try {
-      const body = req.body;
-      
-      if(!body){
-        return
-      }
-      const user = await UserModel.createUser(body);
-      res.status(201).send({
-        status: "success",
-        data: {
-          user,
-        },
-      });
-    } catch (error) {
-        
-      res.send({
-        status: "error",
-        data: {
-          error,
-        },
-      });
-    }
+    const user = await this.createUserService.execute({
+      name, email, password 
+    });
+
+    res.status(HTTP.Created).json({status: "success", data: { user}});
   }
 }
-
-export default UserController;

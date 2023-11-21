@@ -1,20 +1,42 @@
-import express, { Request, Response } from 'express';
-import * as dotenv from 'dotenv';
-import routes from './routes/index';
-import bodyParser from 'body-parser'
+import "reflect-metadata";
+import "express-async-errors";
+import { config } from "dotenv";
+import cors from "cors";
 
-dotenv.config();
+import "./container";
+import express, {Application} from "express";
+import router from "./routes";
+import errorHandler from "./middlewares/errorHandler";
 
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+config({ path: process.env.NODE_ENV === "test" ? ".env.test" : ".env"})
 
-const port = 3000;
+class App {
+  public express: Application;
 
-const versionApi = process.env.VERSION_API || 'v1';
+  constructor() {
+    this.express = express();
+    this.middlewares();
+    this.routes();
+    this.errorHandling();
+  }
 
-app.use(`/api/${versionApi}`, routes);
+  private middlewares() : void {
+    this.express.use(
+      cors({
+        origin: "*",
+        optionsSuccessStatus: 200
+      })
+    );
+    this.express.use(express.json());
+  }
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+  private routes():void {
+    this.express.use(router);
+  }
+
+  private errorHandling():void{
+    this.express.use(errorHandler);
+  }
+}
+
+export default new App().express;
